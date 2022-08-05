@@ -54,20 +54,23 @@ def login_handler():
 @users_routes.route("/register", methods=["POST"])
 def register_handler():
     try:
+        # check if username is already taken
         username = request.form["username"]
         password = request.form["password"]
         first_name = request.form["first-name"]
         last_name = request.form["last-name"]
         email = request.form["email"]
         hashedPassword = hashPassword(password)
-
         new_user = Users(username=username, password=hashedPassword, first_name=first_name, last_name=last_name, email=email)
         db.session.add(new_user)
         db.session.commit()
+        return f"created user {username} and their password is {hashedPassword}"
     except:
-        return jsonify({"message":"Something went wrong on your end."}), 500
-    
-@users_routes.route("/<user_id>", methods=["GET, PUT, DELETE"])
+        return "Something went wrong during registration.",300
+
+
+
+@users_routes.route("/<user_id>", methods=["GET", "PUT", "DELETE"])
 def user_handler(user_id):
     if request.method == "DELETE":
         user = Users.query.filter_by(id=user_id).first()
@@ -83,10 +86,12 @@ def user_handler(user_id):
         user.email = request.form["email"]
         db.session.commit()
         return jsonify({"message":"User updated."})
-    else:
+    elif request.method == "GET":
+
         user = Users.query.filter_by(id=user_id).first()
         return jsonify({"user":user.serialize()})
-    
+    else:
+        return "Not found.",200
     
     
     

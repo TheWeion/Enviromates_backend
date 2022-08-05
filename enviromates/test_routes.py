@@ -8,8 +8,15 @@ def test_response_200(api):
 	assert response.status_code == 200
 
 
+def test_user_registration_fail(api):
+	response = api.post("/users/register", data={"username":"just-the-username"})
+	assert response.text == "Something went wrong during registration."
+	assert response.status_code == 300
 
-
+# def test_user_found_from_id(api):
+# 	response = api.get("/users/0")
+# 	assert response.status_code == 200
+# 	assert response.json == {"user":"user"}
 
 
 
