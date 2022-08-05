@@ -5,6 +5,7 @@ from flask_cors import CORS
 
 from .database.db import db
 from .routes.main import main_routes
+from .routes.users import users_routes
 
 # Load environment variables
 
@@ -30,6 +31,7 @@ db.app = app
 db.init_app(app)
 
 app.register_blueprint(main_routes)
+app.register_blueprint(users_routes, url_prefix="/users")
 
 ## Main
 
