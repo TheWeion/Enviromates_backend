@@ -1,9 +1,10 @@
 import json
+import pytest
 
 
 ## Test for 200 status code on user route
 def test_response_200(api):
-	response = api.get('/test')
+	response = api.get('/')
 	assert response.status_code == 200
 
 

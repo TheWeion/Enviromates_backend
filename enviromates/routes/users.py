@@ -23,7 +23,7 @@ def verifyToken(token):
     except:
         return False
 
-@users_routes.route("/", methods=["GET","POST"])
+@users_routes.route("/", methods=["POST"])
 def auth_handler():
     if request.method == "POST":
         username = request.form["username"]
@@ -31,10 +31,11 @@ def auth_handler():
         hashedPassword = hashPassword(password)
         return f"user created: username:{username} password:{hashedPassword}"
     else:
-        username = request.form["username"]
-        password = request.form["password"]
-        token = generateToken(username)
-        return jsonify({"token":token})
+        return jsonify({"message","something went wrong."}),401
+        # username = request.form["username"]
+        # password = request.form["password"]
+        # token = generateToken(username)
+        # return jsonify({"token":token})
         
 @users_routes.route("/login", methods=["POST","GET"])
 def login_handler():
@@ -97,6 +98,3 @@ def user_handler(user_id):
     
     
       
-@users_routes.route("/test", methods=["GET"])
-def test_route():
-    return jsonify({"username":"username"}), 200
