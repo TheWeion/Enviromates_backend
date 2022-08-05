@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from datetime import datetime
 from ..models.url import ShortUrls
+from ..models.user import Users
+from ..models.event import Events
 from ..database.db import db
 from random import choice
 import string
