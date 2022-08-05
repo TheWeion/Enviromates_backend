@@ -5,7 +5,8 @@ import string
 from ..database.db import db
 from ..models.user import Users
 
-users_routes = Blueprint("user", __name__)
+users_routes = Blueprint("users", __name__)
+# print(dir(Blueprint))
 
 def hashPassword(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
@@ -35,8 +36,10 @@ def auth_handler():
         token = generateToken(username)
         return jsonify({"token":token})
         
-@users_routes.route("/login", methods=["POST"])
+@users_routes.route("/login", methods=["POST","GET"])
 def login_handler():
+    if request.method == "GET":
+        return jsonify({"token":"token"})
     username = request.form["username"]
     password = request.form["password"]
     db_user = db.Query.filter_by(username=username).first()
