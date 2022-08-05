@@ -1,5 +1,5 @@
-from environmates import db
-from environmates.models.url import ShortUrls
+from enviromates import db
+from enviromates.models.url import ShortUrls
 
 # Clear it all out
 

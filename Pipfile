@@ -27,6 +27,6 @@ python_version = "3.10"
 [scripts]
 init_db = "python3 init_db.py"
 dev = "flask run -p ${PORT} --host=0.0.0.0"
-start = "gunicorn environmates:app"
+start = "gunicorn enviromates:app"
 test = "pytest ."
 coverage = "pytest --cov-report term-missing --cov=."
