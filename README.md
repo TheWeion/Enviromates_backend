@@ -1,2 +1,20 @@
-# Environmates_backend
-Backend Repo for the EnvironMates App (created for Lap 4 at futureproof).
+# EnvironMates - Backend Repository
+
+> Creating change, together!
+
+## Installation & Usage
+
+
+
+## Changelog
+
+### 
+
+
+## TODO
+
+- [ ] 
+
+## Bugs
+
+- [ ] 
