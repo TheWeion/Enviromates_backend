@@ -66,6 +66,37 @@ def register_handler():
     except:
         return jsonify({"message":"Something went wrong on your end."}), 500
     
+@users_routes.route("/<user_id>", methods=["GET, PUT, DELETE"])
+def user_handler(user_id):
+    if request.method == "DELETE":
+        user = Users.query.filter_by(id=user_id).first()
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message":"User deleted."})
+    elif request.method == "PUT":
+        user = Users.query.filter_by(id=user_id).first()
+        user.username = request.form["username"]
+        user.password = request.form["password"]
+        user.first_name = request.form["first-name"]
+        user.last_name = request.form["last-name"]
+        user.email = request.form["email"]
+        db.session.commit()
+        return jsonify({"message":"User updated."})
+    else:
+        user = Users.query.filter_by(id=user_id).first()
+        return jsonify({"user":user.serialize()})
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      
 @users_routes.route("/test", methods=["GET"])
 def test_route():
     return jsonify({"username":"username"}), 200
