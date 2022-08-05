@@ -1,4 +1,4 @@
-# EnvironMates - Backend Repository
+# EnviroMates - Backend Repository
 
 > Creating change, together!
 
