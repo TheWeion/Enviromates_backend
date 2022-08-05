@@ -12,4 +12,3 @@ class Events(db.Model):
     difficulty = db.Column(db.Integer, nullable=False, required=True, default=1)
     start_date = db.Column(db.Date, nullable=False, required=True, default=datetime.datetime.now())
     end_date = db.Column(db.Date, nullable=False, required=True)
-    user_list = db.relationship('Users', secondary='event_user', backref=db.backref('events', lazy='dynamic'))
