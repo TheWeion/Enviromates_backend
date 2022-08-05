@@ -76,7 +76,7 @@ def user_handler(user_id):
     elif request.method == "PUT":
         user = Users.query.filter_by(id=user_id).first()
         user.username = request.form["username"]
-        user.password = request.form["password"]
+        user.password = hashPassword(request.form["password"])
         user.first_name = request.form["first-name"]
         user.last_name = request.form["last-name"]
         user.email = request.form["email"]
