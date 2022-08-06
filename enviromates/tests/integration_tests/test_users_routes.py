@@ -1,11 +1,19 @@
-import json
-import pytest
 
 
 ## Test for 200 status code on user route
+
+
 def test_response_200(api):
 	response = api.get('/')
 	assert response.status_code == 200
+
+# Test POST to /users
+# this was just an experiment . can use it as reference but needs to be removed.
+def test_post_user(api):
+	data = {"username":"tommy","password":"password"}
+	response = api.post("/users/",data=data)
+	assert response.status_code == 200
+	assert "user created: username:tommy password:" in response.text
 
 
 def test_user_registration_fail(api):

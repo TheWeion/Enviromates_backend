@@ -1,35 +1,24 @@
-from flask import Blueprint, request, redirect, jsonify
-import jwt
-import bcrypt
-import string
-from ..database.db import db
-from ..models.user import Users
+from flask import Blueprint, request, jsonify
 
+# database tables
+from enviromates.database.db import db
+from enviromates.models.user import Users
+
+# helper functions for auth
+from enviromates.helpers.auth_helpers import verifyPassword,generateToken,hashPassword
+
+# Blurprint prefix setup
 users_routes = Blueprint("users", __name__)
-# print(dir(Blueprint))
 
-def hashPassword(password):
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-def verifyPassword(password,hashedPassword):
-    return bcrypt.checkpw(password.encode('utf-8'), hashedPassword)
-
-def generateToken(user_id):
-    return jwt.encode({'user_id': user_id}, 'secret', algorithm='HS256').decode('utf-8')
-
-def verifyToken(token):
-    try:
-        return jwt.decode(token, 'secret', algorithms=['HS256'])
-    except:
-        return False
-
+# G
 @users_routes.route("/", methods=["POST"])
 def auth_handler():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
         hashedPassword = hashPassword(password)
-        return f"user created: username:{username} password:{hashedPassword}"
+        return jsonify({"message":f"user created: username:{username} password:{hashedPassword}"}),200
     else:
         return jsonify({"message","something went wrong."}),401
         # username = request.form["username"]
