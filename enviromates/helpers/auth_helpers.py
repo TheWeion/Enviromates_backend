@@ -3,10 +3,10 @@ import jwt
 from datetime import datetime, timedelta
 
 def hashPassword(password):
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode("utf-8")
 
 def verifyPassword(password,hashedPassword):
-    return bcrypt.checkpw(password.encode('utf-8'), hashedPassword)
+    return bcrypt.checkpw(password.encode('utf-8'), hashedPassword.encode('utf-8'))
 
 def generateToken(user_id):
     dt = datetime.now() + timedelta(days=7)

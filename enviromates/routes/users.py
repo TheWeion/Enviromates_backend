@@ -1,49 +1,47 @@
 from flask import Blueprint, request, jsonify
 
+
+
 # database tables
 from enviromates.database.db import db
 from enviromates.models.user import Users
 
 # helper functions for auth
-from enviromates.helpers.auth_helpers import verifyPassword,generateToken,hashPassword
+from enviromates.helpers.auth_helpers import hashPassword, generateToken, verifyPassword
 
 # Blurprint prefix setup
 users_routes = Blueprint("users", __name__)
 
 
-# G
-@users_routes.route("/", methods=["POST"])
+################################################## GET ALL users
+@users_routes.route("/", methods=["GET"])
 def auth_handler():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        hashedPassword = hashPassword(password)
-        return jsonify({"message":f"user created: username:{username} password:{hashedPassword}"}),200
-    else:
-        return jsonify({"message","something went wrong."}),401
-        # username = request.form["username"]
-        # password = request.form["password"]
-        # token = generateToken(username)
-        # return jsonify({"token":token})
-        
-@users_routes.route("/login", methods=["POST","GET"])
+        users_list=[]
+        users = Users.query.all()
+        for user in users:
+            users_list.append(user.output())
+        return jsonify({"users":users_list})
+
+
+################################################## Login user, return access token
+@users_routes.route("/login", methods=["POST"])
 def login_handler():
+
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
         db_user = Users.query.filter_by(username=username).first()
-    
-        if verifyPassword(password, db_user.password):
-            token = generateToken(username)
-            # Response.headers.add("accesstoken", token)
-            return "congratulations", 200
+    if verifyPassword(password, db_user.password):
+        token = generateToken(username)
+        return jsonify({"success":"True","token":token})
     else:
         return "Invalid username or password"
         
+################################################## Register new user
 @users_routes.route("/register", methods=["POST"])
 def register_handler():
+
     try:
-        # check if username is already taken
         username = request.form["username"]
         password = request.form["password"]
         first_name = request.form["first-name"]
@@ -53,35 +51,39 @@ def register_handler():
         new_user = Users(username=username, password=hashedPassword, first_name=first_name, last_name=last_name, email=email)
         db.session.add(new_user)
         db.session.commit()
-        found_user = Users.query.filter_by(username=username).first()
-        print(found_user)
-        return jsonify({"user":found_user})
+        return jsonify({"success":"true","message":"account created successfully.","user":new_user.output()})
+
     except Exception as e:
         return f"{e}" 
 
+################################################## User CRUD by username
+@users_routes.route("/<username>", methods=["GET", "PUT", "DELETE"])
+def user_handler(username):
 
-@users_routes.route("/<user_id>", methods=["GET", "PUT", "DELETE"])
-def user_handler(user_id):
+################################################## DELETE USER
     if request.method == "DELETE":
-        user = Users.query.filter_by(id=user_id).first()
+        user = Users.query.filter_by(username=username).first()
         db.session.delete(user)
         db.session.commit()
         return jsonify({"message":"User deleted."})
+
+################################################## EDIT USER
     elif request.method == "PUT":
-        user = Users.query.filter_by(id=user_id).first()
-        user.username = request.form["username"]
-        user.password = hashPassword(request.form["password"])
-        user.first_name = request.form["first-name"]
-        user.last_name = request.form["last-name"]
-        user.email = request.form["email"]
+        user = Users.query.filter_by(username=username).first()
+        user.username = request.form.get("username") or user.username
+        user.password = hashPassword(request.form.get("password")) or user.password
+        user.first_name = request.form.get("first-name") or user.first_name
+        user.last_name = request.form.get("last-name") or user.last_name
+        user.email = request.form.get("email") or user.email
         db.session.commit()
         return jsonify({"message":"User updated."})
+
+################################################## GET USER information
     elif request.method == "GET":
-        user = Users.query.filter_by(id=user_id).with_entities(Users.username, Users.password, Users.first_name, Users.last_name, Users.email, Users.cur_points, Users.events_attended_by_user, Users.events_hosted_by_user, Users.created_at).first()
-        return jsonify({"username":user.username, "password":user.password, "first_name":user.first_name, "last_name":user.last_name, "email":user.email, "cur_points":user.cur_points, "events_attended_by_user":user.events_attended_by_user, "events_hosted_by_user":user.events_hosted_by_user, "created_at":user.created_at})
+        user = Users.query.filter_by(username=username).first()
+        return jsonify({"user":user.output()})
     else:
         return "Not found.",200
-    
     
     
     

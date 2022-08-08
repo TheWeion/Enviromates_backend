@@ -21,11 +21,9 @@ def test_post_user_valid(api,mocker):
 # 	assert "user created: username:tommy password:" in response.text
 
 # Test GET user by id
-def test_get_user_by_id(api):
-	response = api.get("/users/1")
+def test_get_user_by_username(api):
+	response = api.get("/users/tom")
 	assert response.status_code == 200
-	print(response.text)
-	assert '"username": "summ"' in response.text
 
 
 # Test POST to /users
