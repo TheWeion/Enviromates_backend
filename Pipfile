@@ -14,6 +14,7 @@ waitress = "*"
 bcrypt = "*"
 flask-bcrypt = "*"
 pyjwt = "*"
+pytest-mock = "*"
 
 [dev-packages]
 atomicwrites = "*"
@@ -30,4 +31,4 @@ dev = "flask run -p ${PORT} --host=0.0.0.0"
 start = "gunicorn enviromates:app"
 test = "pytest enviromates/tests --disable-warnings"
 waitress= "waitress-serve --listen=*:8000 enviromates:app"
-coverage = "pytest --cov-report term-missing --cov=."
+coverage = "pytest --cov-report term-missing --cov=. --fail-under=60"

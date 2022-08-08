@@ -58,7 +58,6 @@ def register_handler():
         return "Something went wrong during registration.",300
 
 
-
 @users_routes.route("/<user_id>", methods=["GET", "PUT", "DELETE"])
 def user_handler(user_id):
     if request.method == "DELETE":
@@ -76,9 +75,8 @@ def user_handler(user_id):
         db.session.commit()
         return jsonify({"message":"User updated."})
     elif request.method == "GET":
-
-        user = Users.query.filter_by(id=user_id).first()
-        return jsonify({"user":user.serialize()})
+        user = Users.query.filter_by(id=user_id).with_entities(Users.username, Users.password, Users.first_name, Users.last_name, Users.email, Users.cur_points, Users.events_attended_by_user, Users.events_hosted_by_user, Users.created_at).first()
+        return jsonify({"username":user.username, "password":user.password, "first_name":user.first_name, "last_name":user.last_name, "email":user.email, "cur_points":user.cur_points, "events_attended_by_user":user.events_attended_by_user, "events_hosted_by_user":user.events_hosted_by_user, "created_at":user.created_at})
     else:
         return "Not found.",200
     
