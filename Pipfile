@@ -14,6 +14,7 @@ waitress = "*"
 bcrypt = "*"
 flask-bcrypt = "*"
 pyjwt = "*"
+pytest-mock = "*"
 
 [dev-packages]
 atomicwrites = "*"

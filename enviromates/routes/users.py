@@ -28,15 +28,15 @@ def auth_handler():
         
 @users_routes.route("/login", methods=["POST","GET"])
 def login_handler():
-    if request.method == "GET":
-        return jsonify({"token":"token"})
-    username = request.form["username"]
-    password = request.form["password"]
-    db_user = db.Query.filter_by(username=username).first()
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        db_user = Users.query.filter_by(username=username).first()
     
-    if verifyPassword(password, db_user["password"]):
-        token = generateToken(username)
-        return jsonify({"token": token})
+        if verifyPassword(password, db_user.password):
+            token = generateToken(username)
+            # Response.headers.add("accesstoken", token)
+            return "congratulations", 200
     else:
         return "Invalid username or password"
         
@@ -53,9 +53,11 @@ def register_handler():
         new_user = Users(username=username, password=hashedPassword, first_name=first_name, last_name=last_name, email=email)
         db.session.add(new_user)
         db.session.commit()
-        return f"created user {username} and their password is {hashedPassword}"
-    except:
-        return "Something went wrong during registration.",300
+        found_user = Users.query.filter_by(username=username).first()
+        print(found_user)
+        return jsonify({"user":found_user})
+    except Exception as e:
+        return f"{e}" 
 
 
 

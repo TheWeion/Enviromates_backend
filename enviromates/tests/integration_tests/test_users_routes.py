@@ -1,5 +1,3 @@
-
-
 ## Test for 200 status code on user route
 
 
@@ -7,21 +5,36 @@ def test_response_200(api):
 	response = api.get('/')
 	assert response.status_code == 200
 
-# Test POST to /users
-# this was just an experiment . can use it as reference but needs to be removed.
-def test_post_user(api):
-	data = {"username":"tommy","password":"password"}
-	response = api.post("/users/",data=data)
+# # Test POST to /users
+# def test_post_user_valid(api,mocker):
+# 	data = {"username":"tommy","password":"password"}
+# 	mocker.patch("enviromates.routes.users.Users.query")
+# 	response = api.post("/users/",data=data)
+# 	assert response.status_code == 200
+# 	assert "user created: username:tommy password:" in response.text
+
+# def test_post_user_fail(api,mocker):
+# 	data = {"name":"something"}
+# 	mocker.patch("enviromates.routes.users.Users.query")
+# 	response = api.post("/users/")	
+
+def test_post_user_valid(api,mocker):
+	data = {"username":"something","first-name":"mildred","last-name":"jwt","email":"fake@email.cors"}
+	mocker.patch("enviromates.routes.users.Users.query")
+	response = api.post("/users/register", data=data)
 	assert response.status_code == 200
-	assert "user created: username:tommy password:" in response.text
+	
+# def test_GET_user_valid(api,mocker):
+# 	data = {"username":"something","first-name":"mildred","last-name":"jwt","email":"fake@email.cors"}
+# 	mocker.patch("enviromates.routes.users.Users.query")
+# 	new_user = api.post("/users/register", data=data)
+# 	user = json.load(new_user)
+# 	response = api.get(f"/users/{user['id']}")
+# 	assert response.status_code == 200
+# 	assert "username" in response.text
 
 
-def test_user_registration_fail(api):
-	response = api.post("/users/register", data={"username":"just-the-username"})
-	assert response.text == "Something went wrong during registration."
-	assert response.status_code == 300
 
-# def test_user_found_from_id(api):
 # 	response = api.get("/users/0")
 # 	assert response.status_code == 200
 # 	assert response.json == {"user":"user"}

@@ -11,7 +11,7 @@ class Events(db.Model):
     description = db.Column(db.String, nullable=False)
     difficulty = db.Column(db.Integer, nullable=False, default=1)
     start_date = db.Column(db.Date, nullable=False, default=datetime.now())
-    end_date = db.Column(db.Date, )
+    end_date = db.Column(db.Date)
 
     def __init__(self):
         return f"{self.id}"
