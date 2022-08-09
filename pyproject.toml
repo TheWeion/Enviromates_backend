@@ -1,0 +1,6 @@
+[tool.coverage.run]
+omit = [
+    "init_db.py",
+    "wsgi.py",
+    "enviromates/tests/*",
+]

@@ -3,8 +3,10 @@ from os import environ, getenv
 from flask import Flask
 from flask_cors import CORS
 
-from .database.db import db
-from .routes.main import main_routes
+from enviromates.database.db import db
+from enviromates.routes.main import main_routes
+from enviromates.routes.users import users_routes
+from enviromates.routes.events import events_routes
 
 # Load environment variables
 
@@ -30,7 +32,8 @@ db.app = app
 db.init_app(app)
 
 app.register_blueprint(main_routes)
-
+app.register_blueprint(users_routes, url_prefix="/users")
+app.register_blueprint(events_routes, url_prefix="/events")
 ## Main
 
 if __name__ == "__main__":

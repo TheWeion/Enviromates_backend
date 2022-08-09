@@ -11,9 +11,16 @@ psycopg2 = "*"
 gunicorn = "*"
 python-dotenv = "*"
 waitress = "*"
+bcrypt = "*"
+flask-bcrypt = "*"
+pyjwt = "*"
+pytest-mock = "*"
 
 [dev-packages]
 atomicwrites = "*"
+pytest = "*"
+pytest-cov = "*"
+importlib-metadata = "*"
 
 [requires]
 python_version = "3.10"
@@ -21,4 +28,7 @@ python_version = "3.10"
 [scripts]
 init_db = "python3 init_db.py"
 dev = "flask run -p ${PORT} --host=0.0.0.0"
-start = "gunicorn environmates:app"
+start = "gunicorn enviromates:app"
+test = "pytest enviromates/tests --disable-warnings"
+waitress= "waitress-serve --listen=*:8000 enviromates:app"
+coverage = "pytest --cov-report term-missing --cov=. "
