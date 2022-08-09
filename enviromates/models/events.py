@@ -5,6 +5,7 @@ from datetime import datetime
 @dataclass
 class Events(db.Model):
     id = db.Column(db.Integer,primary_key=True)
+    author_id= db.Column(db.Integer, db.ForeignKey("users.id"))
     latitude = db.Column(db.String, nullable=False)
     longitude = db.Column(db.String, nullable=False)
     img_before = db.Column(db.String, nullable=False)
@@ -27,4 +28,5 @@ class Events(db.Model):
             "difficulty" : self.difficulty,  
             "start_date" : self.start_date,
             "end_date" : self.end_date,
+            "author_id": self.author_id,
         }

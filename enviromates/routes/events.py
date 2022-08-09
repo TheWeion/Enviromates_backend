@@ -2,6 +2,9 @@
 from flask import Blueprint, request, jsonify
 from enviromates.database.db import db
 from enviromates.models.events import Events
+from enviromates.models.user import Users
+
+from enviromates.helpers.auth_helpers import verifyToken
 
 events_routes = Blueprint("events", __name__)
 
@@ -21,15 +24,28 @@ def event_handler():
 		except Exception as e:
 			return f"{e}",200
 	elif request.method == "POST":
-		print("events post hit.")
+		
+		# token = user = Users.query.filter_by(token=request.headers.get("Authorization")).first()
+		# if user:
+			# author_id = user.id
+		# else:
+			# return "User not found.",200
+
+
 		try:
+			# auth the user
+			token = request.headers.get("accesstoken")
+			username = verifyToken(token)["user_username"]
+			user = Users.query.filter_by(username=username).first()
+
 			title = request.form["title"]
+			author_id = user.id
 			description = request.form["description"]
 			difficulty = request.form["difficulty"]
 			latitude = request.form["latitude"]
 			longitude = request.form["longitude"]
 			img_before = request.form["img-before"]
-			new_event = Events(title=title, description=description, difficulty=difficulty, latitude=latitude, longitude=longitude, img_before=img_before)
+			new_event = Events(title=title,author_id=author_id, description=description, difficulty=difficulty, latitude=latitude, longitude=longitude, img_before=img_before)
 			db.session.add(new_event)
 			db.session.commit()
 			return jsonify({"success":"true","message":"event created.","data":new_event.output()})
@@ -52,17 +68,29 @@ def event_id_handler(event_id):
 ################################################## EDIT ONE event
 	elif request.method == "PUT":
 
-		event = Events.query.filter_by(id=event_id).first()
-		event.title = request.form.get("title") or event.title
-		event.description = request.form.get("description") or event.description
-		event.difficulty = request.form.get("difficulty") or event.difficulty
-		event.start_date = request.form.get("start-date") or event.start_date
-		event.latitude = request.form.get("latitude") or event.latitude
-		event.longitude = request.form.get("longitude") or event.longitude
-		event.img_after = request.form.get("img-after") or event.img_after
-		db.session.commit()
-		return jsonify({"message":"Event updated."})
+		# auth the user
+		try:
+			token = request.headers.get("accesstoken")
+			decoded_token = verifyToken(token)
+			username = decoded_token["user_username"]
+			print(decoded_token)
+			user = Users.query.filter_by(username=username).first()
+			event = Events.query.filter_by(id=event_id).first()
+		except:
+			return jsonify({"success":"False","message":"Something went wrong during event update."})
+		if event.author_id == user.id:
 
+			event.title = request.form.get("title") or event.title
+			event.description = request.form.get("description") or event.description
+			event.difficulty = request.form.get("difficulty") or event.difficulty
+			event.start_date = request.form.get("start-date") or event.start_date
+			event.latitude = request.form.get("latitude") or event.latitude
+			event.longitude = request.form.get("longitude") or event.longitude
+			event.img_after = request.form.get("img-after") or event.img_after
+			db.session.commit()
+			return jsonify({"message":"Event updated."})
+		else:
+			return jsonify({"success":"False","message":"something went wrong."})
 ################################################## DELETE ONE event
 	elif request.method == "DELETE":
 		event = Events.query.filter_by(id=event_id).first()

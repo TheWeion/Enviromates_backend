@@ -8,13 +8,13 @@ def hashPassword(password):
 def verifyPassword(password,hashedPassword):
     return bcrypt.checkpw(password.encode('utf-8'), hashedPassword.encode('utf-8'))
 
-def generateToken(user_id):
+def generateToken(user_username):
     dt = datetime.now() + timedelta(days=7)
-    return jwt.encode({'user_id': user_id,"exp":dt},'secret', algorithm='HS256')
+    return jwt.encode({'user_username': user_username,"exp":dt},'secret', algorithm='HS256')
 
 def verifyToken(token):
     try:
-        return jwt.decode(token, 'secret', algorithms=['HS256'])
+        return  jwt.decode(token, 'secret', algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
         return 'signature has expired.'
     except:

@@ -36,13 +36,13 @@ def test_accesstoken_generation_success():
 
 def test_accesstoken_verification_success():
     # create a brand new token
-    token = generateToken("test_user_id")
+    token = generateToken("test_user_username")
     # try to verify the token
     result = verifyToken(token)
     # confirms a token is NOT invalid
     assert result != False
     # returns the user_id from within the payload
-    assert "test_user_id" in result["user_id"]
+    assert "test_user_username" in result["user_username"]
     # returns expiry time from within the payload
     assert result["exp"] != None
 
