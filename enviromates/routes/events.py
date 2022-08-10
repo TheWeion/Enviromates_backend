@@ -1,16 +1,23 @@
 
+# ─── Imports ────────────────────────────────────────────────────────────────────
+
 from flask import Blueprint, request, jsonify
 from enviromates.database.db import db
 from enviromates.models.events import Events
 from enviromates.models.user import Users
-
+from enviromates.models.lobby import Lobby
 from enviromates.helpers.auth_helpers import verifyToken
+
+# ─── Globals ────────────────────────────────────────────────────────────────────
 
 events_routes = Blueprint("events", __name__)
 
+# ────────────────────────────────────────────────────────────────────────────────
+
+# ─── Event: GET And POST Routes ──────────────────────────────────────────────────
+
 @events_routes.route("/", methods=["GET","POST"])
 def event_handler():
-################################################## GET ALL events
 	if request.method == "GET":
 		try:
 			events = Events.query.all()
@@ -18,20 +25,10 @@ def event_handler():
 			for event in events:
 				events_list.append(event.output())
 			return jsonify({"events":events_list})
-
-
-			# return jsonify({"events":[event.serialize() for event in events]})
 		except Exception as e:
 			return f"{e}",200
+
 	elif request.method == "POST":
-		
-		# token = user = Users.query.filter_by(token=request.headers.get("Authorization")).first()
-		# if user:
-			# author_id = user.id
-		# else:
-			# return "User not found.",200
-
-
 		try:
 			# auth the user
 			token = request.headers.get("accesstoken")
@@ -39,7 +36,7 @@ def event_handler():
 			user = Users.query.filter_by(username=username).first()
 
 			title = request.form["title"]
-			author_id = user.id
+			author_id = user.output()["id"]
 			description = request.form["description"]
 			difficulty = request.form["difficulty"]
 			latitude = request.form["latitude"]
@@ -48,32 +45,32 @@ def event_handler():
 			new_event = Events(title=title,author_id=author_id, description=description, difficulty=difficulty, latitude=latitude, longitude=longitude, img_before=img_before)
 			db.session.add(new_event)
 			db.session.commit()
+			event_id = Events.query.filter_by(id=user.id).first().id
+			new_lobby = Lobby(user_id=author_id, event_id=event_id, has_attended=False)
+			db.session.add(new_lobby)
+			db.session.commit()
 			return jsonify({"success":"true","message":"event created.","data":new_event.output()})
 		except Exception as e:
 			return f"{e}"
 	else:
 		return "Invalid request."
 
+# ─── Event: Modify Routes By Id ──────────────────────────────────────────────────
 
-################################################## EVENT CRUD operations
 @events_routes.route("/<event_id>", methods=["GET","PUT","DELETE"])
 def event_id_handler(event_id):
 
-################################################## GET ONE event information
 	if request.method == "GET":
 		event = Events.query.filter_by(id=event_id).first()
-		return jsonify(event.output())
+		return jsonify({"event":event.output(), "attendees": len(Lobby.get_lobby_by_event_id(event_id))})
 
-
-################################################## EDIT ONE event
 	elif request.method == "PUT":
 
-		# auth the user
+		# Auth the user account
 		try:
 			token = request.headers.get("accesstoken")
 			decoded_token = verifyToken(token)
 			username = decoded_token["user_username"]
-			print(decoded_token)
 			user = Users.query.filter_by(username=username).first()
 			event = Events.query.filter_by(id=event_id).first()
 		except:
@@ -90,7 +87,23 @@ def event_id_handler(event_id):
 			db.session.commit()
 			return jsonify({"message":"Event updated."})
 		else:
-			return jsonify({"success":"False","message":"something went wrong."})
+			if request.form.get("join") == "true":
+				join_lobby = Lobby(user_id=user.id, event_id=event_id)
+				incr_attendence = Users.query.filter_by(id=user.id).update({"events_attended_by_user":user.events_attended_by_user+1})
+				db.session.add(join_lobby)
+				db.session.add(incr_attendence)
+				db.session.commit()
+				return jsonify({"message":"You have joined the lobby."})
+			elif request.form.get("leave") == "true":
+				lobby = Lobby.query.filter_by(user_id=user.id, event_id=event_id).first()
+				decr_attendence = Users.query.filter_by(id=user.id).update({"events_attended_by_user":user.events_attended_by_user-1})
+				db.session.add(decr_attendence)
+				db.session.delete(lobby)
+				db.session.commit()
+				return jsonify({"message":"You have left the lobby."})
+			else:
+				return jsonify({"message":"Something went wrong during event update."})
+
 ################################################## DELETE ONE event
 	elif request.method == "DELETE":
 		event = Events.query.filter_by(id=event_id).first()
