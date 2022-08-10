@@ -16,7 +16,6 @@ users_routes = Blueprint("users", __name__)
 def get_user_data():
     if request.method == "POST":
 
-        print("users / has been hit")
         print(request.form["accesstoken"])
         try:
             token = request.form["accesstoken"]
@@ -94,7 +93,21 @@ def user_handler(username):
     else:
         return "Not found.",200
     
-    
+    # get the user by id, this will be for populating the author of each event
+
+
+@users_routes.route("/author/<author_id>", methods=["GET"])
+def get_author_by_id(author_id):
+    if request.method == "GET":
+        try:
+            found_user = Users.query.filter_by(id=author_id).first()
+            user = found_user.output()
+
+            return jsonify({"author":user["username"]})
+        except Exception as err:
+            print(err)
+            return jsonify({"message":"something went wrong fetching the author username"})
+
     
     
     
