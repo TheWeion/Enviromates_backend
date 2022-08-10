@@ -27,9 +27,10 @@ app.config.update(
     SQLALCHEMY_TRACK_MODIFICATIONS=environ.get('SQLALCHEMY_TRACK_MODIFICATIONS')
 )
 
-CORS(app)
 db.app = app
 db.init_app(app)
+
+cors = CORS(app)
 
 app.register_blueprint(main_routes)
 app.register_blueprint(users_routes, url_prefix="/users")
