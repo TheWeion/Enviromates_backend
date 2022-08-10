@@ -28,20 +28,22 @@ def event_handler():
 		except Exception as e:
 			return f"{e}",200
 
+
 	elif request.method == "POST":
 		try:
 			# auth the user
-			token = request.headers.get("accesstoken")
+			token = request.form["accesstoken"]
 			username = verifyToken(token)["user_username"]
-			user = Users.query.filter_by(username=username).first()
 
-			title = request.form["title"]
+			user = Users.query.filter_by(username=username).first()
+			title = request.form.get("title")
 			author_id = user.output()["id"]
-			description = request.form["description"]
-			difficulty = request.form["difficulty"]
-			latitude = request.form["latitude"]
-			longitude = request.form["longitude"]
-			img_before = request.form["img-before"]
+			description = request.form.get("description")
+			difficulty = request.form.get("difficulty")
+			latitude = request.form.get("latitude")
+			longitude = request.form.get("longitude")
+			img_before = request.form.get("img-before")
+
 			new_event = Events(title=title,author_id=author_id, description=description, difficulty=difficulty, latitude=latitude, longitude=longitude, img_before=img_before)
 			db.session.add(new_event)
 			db.session.commit()
