@@ -1,46 +1,52 @@
 from flask import Blueprint, request, jsonify
 
-
-
 # database tables
 from enviromates.database.db import db
 from enviromates.models.user import Users
 
 # helper functions for auth
-from enviromates.helpers.auth_helpers import hashPassword, generateToken, verifyPassword
+from enviromates.helpers.auth_helpers import hashPassword, generateToken, verifyPassword, verifyToken
 
 # Blurprint prefix setup
 users_routes = Blueprint("users", __name__)
 
 
-################################################## GET ALL users
-@users_routes.route("/", methods=["GET"])
-def auth_handler():
-        users_list=[]
-        users = Users.query.all()
-        for user in users:
-            users_list.append(user.output())
-        return jsonify({"users":users_list})
+################################################## user needs their data
+@users_routes.route("/", methods=["POST"])
+def get_user_data():
+    if request.method == "POST":
 
+        print("users / has been hit")
+        print(request.form["accesstoken"])
+        try:
+            token = request.form["accesstoken"]
+            username = verifyToken(token)["user_username"]
+            user = Users.query.filter_by(username=username).first()
+            return jsonify({"success":"True","user":user.output()})
+        except:
+            return "auth failed."
 
 ################################################## Login user, return access token
 @users_routes.route("/login", methods=["POST"])
 def login_handler():
 
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        db_user = Users.query.filter_by(username=username).first()
-    if verifyPassword(password, db_user.password):
-        token = generateToken(username)
-        return jsonify({"success":"True","token":token})
-    else:
-        return "Invalid username or password"
+        try:
+            username = request.form["username"]
+            password = request.form["password"]
+            db_user = Users.query.filter_by(username=username).first()
+            if verifyPassword(password, db_user.password):
+                try :
+                    token = generateToken(username)
+                    return jsonify({"success":"True","token":token,"user":db_user.output()})
+                except Exception as err:
+                    return f"err"
+        except:
+            return jsonify({"status":"Fail","message":"username or password incorrect"})
         
 ################################################## Register new user
 @users_routes.route("/register", methods=["POST"])
 def register_handler():
-
     try:
         username = request.form["username"]
         password = request.form["password"]
@@ -51,7 +57,10 @@ def register_handler():
         new_user = Users(username=username, password=hashedPassword, first_name=first_name, last_name=last_name, email=email)
         db.session.add(new_user)
         db.session.commit()
-        return jsonify({"success":"true","message":"account created successfully.","user":new_user.output()})
+
+        token = generateToken(username)
+
+        return jsonify({"success":"True","message":"account created successfully.","user":new_user.output(),"token":token})
 
     except Exception as e:
         return f"{e}" 
