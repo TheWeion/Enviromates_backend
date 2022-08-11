@@ -7,6 +7,7 @@ from enviromates.models.events import Events
 from enviromates.models.user import Users
 from enviromates.models.lobby import Lobby
 from enviromates.helpers.auth_helpers import verifyToken
+from flask_cors import cross_origin
 
 # ─── Globals ────────────────────────────────────────────────────────────────────
 
@@ -17,6 +18,7 @@ events_routes = Blueprint("events", __name__)
 # ─── Event: GET And POST Routes ──────────────────────────────────────────────────
 
 @events_routes.route("/", methods=["GET","POST"])
+@cross_origin()
 def event_handler():
 	if request.method == "GET":
 		try:
@@ -59,7 +61,8 @@ def event_handler():
 
 # ─── Event: Modify Routes By Id ──────────────────────────────────────────────────
 
-@events_routes.route("/<event_id>", methods=["GET","PUT","DELETE"])
+@events_routes.route("/<int:event_id>", methods=["GET","PUT","DELETE"])
+@cross_origin()
 def event_id_handler(event_id):
 
 	if request.method == "GET":
@@ -70,7 +73,8 @@ def event_id_handler(event_id):
 
 		# Auth the user account
 		try:
-			token = request.headers.get("accesstoken")
+			event_id = request.form.get("event-id")
+			token = request.form.get("accesstoken")
 			decoded_token = verifyToken(token)
 			username = decoded_token["user_username"]
 			user = Users.query.filter_by(username=username).first()
@@ -86,10 +90,12 @@ def event_id_handler(event_id):
 			event.latitude = request.form.get("latitude") or event.latitude
 			event.longitude = request.form.get("longitude") or event.longitude
 			event.img_after = request.form.get("img-after") or event.img_after
+			event.end_date = request.form.get("end-date") or event.end_date
 			db.session.commit()
 			return jsonify({"message":"Event updated."})
 		else:
 			if request.form.get("join") == "true":
+				print("join == true, doing codes")
 				join_lobby = Lobby(user_id=user.id, event_id=event_id)
 				incr_attendence = Users.query.filter_by(id=user.id).update({"events_attended_by_user":user.events_attended_by_user+1})
 				db.session.add(join_lobby)
