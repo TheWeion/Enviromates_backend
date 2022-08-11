@@ -58,9 +58,16 @@ def event_handler():
 
 # ─── Event: Modify Routes By Id ──────────────────────────────────────────────────
 
-@events_routes.route("/edit/<int:event_id>",methods=["POST"])
-def update_event(event_id):
-	if request.method == "POST":
+
+
+@events_routes.route("/<int:event_id>", methods=["GET","PATCH","DELETE"])
+def event_id_handler(event_id):
+
+	if request.method == "GET":
+		event = Events.query.filter_by(id=event_id).first()
+		return jsonify({"event":event.output(), "attendees": len(Lobby.get_lobby_by_event_id(event_id))})
+
+	if request.method == "PATCH":
 
 		# Auth the user account
 		try:
@@ -101,13 +108,6 @@ def update_event(event_id):
 				return jsonify({"message":"You have left the lobby."})
 			else:
 				return jsonify({"message":"Something went wrong during event update."})
-
-@events_routes.route("/<int:event_id>", methods=["GET","PATCH","DELETE"])
-def event_id_handler(event_id):
-
-	if request.method == "GET":
-		event = Events.query.filter_by(id=event_id).first()
-		return jsonify({"event":event.output(), "attendees": len(Lobby.get_lobby_by_event_id(event_id))})
 
 	
 
