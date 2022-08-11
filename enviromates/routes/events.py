@@ -7,18 +7,15 @@ from enviromates.models.events import Events
 from enviromates.models.user import Users
 from enviromates.models.lobby import Lobby
 from enviromates.helpers.auth_helpers import verifyToken
-from flask_cors import cross_origin
 
 # ─── Globals ────────────────────────────────────────────────────────────────────
 
 events_routes = Blueprint("events", __name__)
-
 # ────────────────────────────────────────────────────────────────────────────────
 
 # ─── Event: GET And POST Routes ──────────────────────────────────────────────────
 
 @events_routes.route("/", methods=["GET","POST"])
-@cross_origin()
 def event_handler():
 	if request.method == "GET":
 		try:
@@ -61,15 +58,16 @@ def event_handler():
 
 # ─── Event: Modify Routes By Id ──────────────────────────────────────────────────
 
-@events_routes.route("/<int:event_id>", methods=["GET","PUT","DELETE"])
-@cross_origin()
+
+
+@events_routes.route("/<int:event_id>", methods=["GET","PATCH","DELETE"])
 def event_id_handler(event_id):
 
 	if request.method == "GET":
 		event = Events.query.filter_by(id=event_id).first()
 		return jsonify({"event":event.output(), "attendees": len(Lobby.get_lobby_by_event_id(event_id))})
 
-	elif request.method == "PUT":
+	if request.method == "PATCH":
 
 		# Auth the user account
 		try:
@@ -82,7 +80,6 @@ def event_id_handler(event_id):
 		except:
 			return jsonify({"success":"False","message":"Something went wrong during event update."})
 		if event.author_id == user.id:
-
 			event.title = request.form.get("title") or event.title
 			event.description = request.form.get("description") or event.description
 			event.difficulty = request.form.get("difficulty") or event.difficulty
@@ -111,6 +108,8 @@ def event_id_handler(event_id):
 				return jsonify({"message":"You have left the lobby."})
 			else:
 				return jsonify({"message":"Something went wrong during event update."})
+
+	
 
 ################################################## DELETE ONE event
 	elif request.method == "DELETE":

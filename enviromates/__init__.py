@@ -21,7 +21,8 @@ if 'postgres:' in database_uri:
 
 app = Flask(__name__)
 cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
+
+# app.config['CORS_HEADERS'] = 'Content-Type'
 app.secret_key = getenv('SECRET_KEY')
 
 app.config.update(
