@@ -7,6 +7,7 @@ from enviromates.models.events import Events
 from enviromates.models.user import Users
 from enviromates.models.lobby import Lobby
 from enviromates.helpers.auth_helpers import verifyToken
+from flask_cors import cross_origin
 
 # ─── Globals ────────────────────────────────────────────────────────────────────
 
@@ -17,6 +18,7 @@ events_routes = Blueprint("events", __name__)
 # ─── Event: GET And POST Routes ──────────────────────────────────────────────────
 
 @events_routes.route("/", methods=["GET","POST"])
+@cross_origin()
 def event_handler():
 	if request.method == "GET":
 		try:
@@ -60,6 +62,7 @@ def event_handler():
 # ─── Event: Modify Routes By Id ──────────────────────────────────────────────────
 
 @events_routes.route("/<int:event_id>", methods=["GET","PUT","DELETE"])
+@cross_origin()
 def event_id_handler(event_id):
 
 	if request.method == "GET":

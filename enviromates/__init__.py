@@ -20,6 +20,8 @@ if 'postgres:' in database_uri:
 # Set up the app
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 app.secret_key = getenv('SECRET_KEY')
 
 app.config.update(
@@ -30,7 +32,6 @@ app.config.update(
 db.app = app
 db.init_app(app)
 
-cors = CORS(app)
 
 app.register_blueprint(main_routes)
 app.register_blueprint(users_routes, url_prefix="/users")

@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_cors import cross_origin
 
 # database tables
 from enviromates.database.db import db
@@ -13,6 +14,7 @@ users_routes = Blueprint("users", __name__)
 
 ################################################## user needs their data
 @users_routes.route("/", methods=["POST"])
+@cross_origin()
 def get_user_data():
     if request.method == "POST":
 
@@ -27,6 +29,7 @@ def get_user_data():
 
 ################################################## Login user, return access token
 @users_routes.route("/login", methods=["POST"])
+@cross_origin()
 def login_handler():
 
     if request.method == "POST":
@@ -45,6 +48,7 @@ def login_handler():
         
 ################################################## Register new user
 @users_routes.route("/register", methods=["POST"])
+@cross_origin()
 def register_handler():
     try:
         username = request.form["username"]
@@ -66,6 +70,7 @@ def register_handler():
 
 ################################################## User CRUD by username
 @users_routes.route("/<username>", methods=["GET", "PUT", "DELETE"])
+@cross_origin()
 def user_handler(username):
 
 ################################################## DELETE USER
@@ -97,6 +102,7 @@ def user_handler(username):
 
 
 @users_routes.route("/author/<author_id>", methods=["GET"])
+@cross_origin()
 def get_author_by_id(author_id):
     if request.method == "GET":
         try:
