@@ -42,7 +42,8 @@ def event_handler():
 			latitude = request.form.get("latitude")
 			longitude = request.form.get("longitude")
 			img_before = request.form.get("img-before")
-
+			if not title or not description or not img_before:
+				return jsonify({"success":"False","message":"Please complete the event form before submitting."})
 			new_event = Events(title=title,author_id=author_id, description=description, difficulty=difficulty, latitude=latitude, longitude=longitude, img_before=img_before)
 			db.session.add(new_event)
 			db.session.commit()
@@ -50,7 +51,7 @@ def event_handler():
 			new_lobby = Lobby(user_id=author_id, event_id=event_id, has_attended=False)
 			db.session.add(new_lobby)
 			db.session.commit()
-			return jsonify({"success":"true","message":"event created.","data":new_event.output()})
+			return jsonify({"success":"True","message":"event created.","data":new_event.output()})
 		except Exception as e:
 			return f"{e}"
 	else:
@@ -65,7 +66,7 @@ def event_id_handler(event_id):
 
 	if request.method == "GET":
 		event = Events.query.filter_by(id=event_id).first()
-		return jsonify({"event":event.output(), "attendees": len(Lobby.get_lobby_by_event_id(event_id))})
+		return jsonify({"event":event.output(), "attendees": f"{Lobby.get_lobby_by_event_id(event_id)}"})
 
 	if request.method == "PATCH":
 
