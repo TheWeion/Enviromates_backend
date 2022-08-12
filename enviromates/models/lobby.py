@@ -1,6 +1,6 @@
 from enviromates.database.db import db
-from .user import Users
-from .events import Events
+from enviromates.models.user import Users
+from enviromates.models.events import Events
 
 class Lobby(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -24,7 +24,7 @@ class Lobby(db.Model):
 		return cls.query.filter_by(user_id=user_id).first()
 	@classmethod
 	def get_lobby_by_event_id(cls, event_id):
-		return cls.query.filter_by(event_id=event_id).first()
+		return cls.query.filter_by(event_id=event_id).first().user_id
 	@classmethod
 	def get_lobby_by_user_id_and_event_id(cls, user_id, event_id):
 		return cls.query.filter_by(user_id=user_id, event_id=event_id).first()
